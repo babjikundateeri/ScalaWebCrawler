@@ -15,7 +15,7 @@ class WebCrawlerProperties {
 object WebCrawlerProperties {
   val logger = LoggerFactory.getLogger(this.getClass)
   val fileName = "/crawler.properties"
-  var properties: Properties = null;
+  var properties: Properties = null
 
   val YEAR: String = "Year"
   val BASE_URL: String = "BaseURL"
@@ -23,6 +23,7 @@ object WebCrawlerProperties {
   val N0_OF_MAILS_PER_PAGE: String = "NoOfMailForPage"
   val MBOX: String = ".mbox"
   val USER_HOME: String = "user.home"
+  val FILE_EXT:String = ".eml"
 
   def apply: Unit = loadProperties
   def loadProperties: Unit = {

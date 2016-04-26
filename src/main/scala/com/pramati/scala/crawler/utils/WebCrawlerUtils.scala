@@ -71,22 +71,22 @@ object WebCrawlerParser {
     trNodeToMonthlyDataBeanList(nodeSeqOfTRs)
   }
 
-  def parseArchivesMailsPage(urlContent : String): List[MailArchiveDataBean] = {
+  def parseArchivesMailsPage(urlContent : String, bean: MonthlyDataBean): List[MailArchiveDataBean] = {
     val nodeSeq: NodeSeq = (scala.xml.XML.loadString(urlContent) \\ "html" \ "body" \ "table" filter { _ \\ "@id" exists (_.text == "msglist") }) \ "tbody" \ "tr"
 
     def trNodeToMailArchiveDataBean(nodeSeq: NodeSeq): List[MailArchiveDataBean] = nodeSeq.tail.isEmpty match{
       case false =>
-        trNodeToMailArchiveDataBean(nodeSeq.tail) :+ getMailArchiveDataBeans(nodeSeq.head)
+        trNodeToMailArchiveDataBean(nodeSeq.tail) :+ getMailArchiveDataBeans(nodeSeq.head, bean)
       case true =>
-        List(getMailArchiveDataBeans(nodeSeq.head))
+        List(getMailArchiveDataBeans(nodeSeq.head, bean))
     }
 
-    def getMailArchiveDataBeans(node: Node): MailArchiveDataBean = {
+    def getMailArchiveDataBeans(node: Node, bean: MonthlyDataBean): MailArchiveDataBean = {
       val author = (node \\ "td" filter { _ \\ "@class" exists (_.text == "author") }).text
       val date = (node \\ "td" filter { _ \\ "@class" exists (_.text == "date") }).text
       val subject = ((node \\ "td" filter { _ \\ "@class" exists (_.text == "subject") }) \ "a" ).text
       val href = ((node \\ "td" filter { _ \\ "@class" exists (_.text == "subject") }) \ "a"  \ "@href" ).text
-      MailArchiveDataBean(author, subject, href, date)
+      MailArchiveDataBean(author, subject, href, date, bean)
     }
     trNodeToMailArchiveDataBean(nodeSeq)
   }

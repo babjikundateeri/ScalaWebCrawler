@@ -1,6 +1,7 @@
 package com.pramati.scala.crawler
 
-import com.pramati.scala.crawler.service.CrawlerMonthlyDataBeanService
+import com.pramati.scala.crawler.dtos.MailArchiveDataBean
+import com.pramati.scala.crawler.service.{MailArchiveDataBeanService, MonthlyDataBeanService}
 import com.pramati.scala.crawler.utils.{URLReadingUtility, WebCrawlerParser, WebCrawlerProperties}
 import org.slf4j.LoggerFactory
 
@@ -20,13 +21,14 @@ object WebCrawler {
   }
 
 
-  def startCrawler: Unit = {
+  def startCrawler = {
     val urlcontent = URLReadingUtility.read(WebCrawlerProperties.getURL)
     val listMonthlyDataBean = WebCrawlerParser.parseArchivesLinksPage(urlcontent)
 
-    logger.debug("Result " + listMonthlyDataBean)
+    val mailArchiveDataBeans: List[MailArchiveDataBean] = MonthlyDataBeanService.doService(listMonthlyDataBean)
+    logger.debug("No of mails to be downloaded " + mailArchiveDataBeans.length  )
 
-    CrawlerMonthlyDataBeanService.doService(listMonthlyDataBean)
+    MailArchiveDataBeanService.doService(mailArchiveDataBeans)
   }
 
   def parseArguments(args: Array[String]): Unit = {
