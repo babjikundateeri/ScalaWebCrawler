@@ -51,7 +51,7 @@ object WebCrawlerParser {
     while (nodeIterator.hasNext) {
       val node: Node = nodeIterator.next()
 
-      node.text.contains("2016") match  {
+      node.text.contains(WebCrawlerProperties.getProperty("Year")) match  {
         case false => {}
         case true =>
           val id = (node \\ "@id").text

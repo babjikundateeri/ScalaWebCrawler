@@ -1,6 +1,6 @@
 package com.pramati.scala.crawler
 
-import com.pramati.scala.crawler.utils.{URLReadingUtility, WebCrawlerParser}
+import com.pramati.scala.crawler.utils.{URLReadingUtility, WebCrawlerParser, WebCrawlerProperties}
 import org.slf4j.LoggerFactory
 
 /**
@@ -10,7 +10,9 @@ object WebCrawler {
   def main(args: Array[String]) {
     val logger = LoggerFactory.getLogger(this.getClass)
 
-    val urlcontent = URLReadingUtility.read("http://mail-archives.apache.org/mod_mbox/maven-users/")
+    WebCrawlerProperties.loadProperties
+    logger.debug(" Year " + WebCrawlerProperties.getProperty("Year"))
+    val urlcontent = URLReadingUtility.read(WebCrawlerProperties.getProperty("BaseURL") + WebCrawlerProperties.getProperty("ArchivesFolder"))
     WebCrawlerParser.parseUrlContent(urlcontent)
   }
 }
