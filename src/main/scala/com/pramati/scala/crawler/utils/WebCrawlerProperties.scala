@@ -9,9 +9,6 @@ import scala.io.Source
 /**
   * Created by babjik on 22/4/16.
   */
-class WebCrawlerProperties {
-
-}
 object WebCrawlerProperties {
   val logger = LoggerFactory.getLogger(this.getClass)
   val fileName = "/crawler.properties"

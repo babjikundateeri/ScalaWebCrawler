@@ -12,43 +12,36 @@ import scala.annotation.tailrec
 object MonthlyDataBeanService {
   val logger = LoggerFactory.getLogger(this.getClass)
 
-  def doService(input: List[MonthlyDataBean]): List[MailArchiveDataBean] = input.tail.isEmpty match {
-     case true =>
-       processMontlyDataBean(input.head)
-     case false =>
-       processMontlyDataBean(input.head) ::: doService(input.tail)
+  def doService(input: List[MonthlyDataBean]): List[MailArchiveDataBean] = input match {
+    case Nil => Nil// do nothing, return Nil
+    case _ =>
+       doService(input.tail) ::: processMontlyDataBean(input.head)
   }
 
   def processMontlyDataBean(bean: MonthlyDataBean): List[MailArchiveDataBean] = {
     val outDir = WebCrawlerFileUtils.getBaseDir(bean)
     logger.debug("Out Dir " + outDir)
-    WebCrawlerFileUtils.isFileExists(outDir) match {
-      case true =>
-      case false =>
-        logger.debug("dir not present")
-        WebCrawlerFileUtils.createDirectories(outDir)
+    if(!WebCrawlerFileUtils.isFileExists(outDir)) {
+      logger.debug("dir not present")
+      WebCrawlerFileUtils.createDirectories(outDir)
     }
     // it might contain morethan 1 page
     val filesCountInDir = WebCrawlerFileUtils.getNoOfFileInDir(outDir)
-    logger.debug("Mails at local dir  / server dir :: " + filesCountInDir +" / " +bean.msgCount)
+    logger.debug(bean.href + " -- Mails at local dir  / server dir :: " + filesCountInDir +" / " +bean.msgCount)
 
-
-    filesCountInDir compare bean.msgCount match {
-      case -1 =>
-        val noOfPages: Int = bean.msgCount / WebCrawlerProperties.getNoOfMailsPerPage + 1
-        logger.debug("No of pages to read " + noOfPages)
-
-        def go (pageNumber: Int) : List[MailArchiveDataBean] = {
-          pageNumber compare 0 match {
-            case -1 =>
-              List.empty
-            case _ =>
-              val url = WebCrawlerProperties.getURL + bean.href + "?" + pageNumber
-              WebCrawlerParser.parseArchivesMailsPage(URLReadingUtility.read(url), bean) ::: go (pageNumber -1)
-          }
-
+    if (filesCountInDir >= bean.msgCount) {
+      List.empty
+    } else {
+      val noOfPages: Int = bean.msgCount / WebCrawlerProperties.getNoOfMailsPerPage + 1
+      logger.debug("No of pages to read " + noOfPages)
+      def go (pageNumber: Int) : List[MailArchiveDataBean] = {
+        if(pageNumber < 0) List.empty
+        else {
+          val url = WebCrawlerProperties.getURL + bean.href + "?" + pageNumber
+          WebCrawlerParser.parseArchivesMailsPage(URLReadingUtility.read(url), bean) ::: go (pageNumber -1)
         }
-         go(noOfPages-1)
+      }
+      go(noOfPages-1)
     }
   }
 }
@@ -58,10 +51,9 @@ object MailArchiveDataBeanService {
   val logger = LoggerFactory.getLogger(this.getClass)
 
   @tailrec
-  def doService(input:List[MailArchiveDataBean]): Unit = input.tail.isEmpty match {
-    case true =>
-      processMailArchiveDataBean(input.head)
-    case false =>
+  def doService(input:List[MailArchiveDataBean]): Unit = input match {
+    case Nil => // just returning
+    case _ =>
       processMailArchiveDataBean(input.head)
       doService(input.tail)
   }
@@ -73,7 +65,9 @@ object MailArchiveDataBeanService {
       val baseDir = WebCrawlerFileUtils.getBaseDir(mailArchiveDataBean.monthlyDataBean)
       val fileName = baseDir+ "/" +mailArchiveDataBean.date + WebCrawlerProperties.FILE_EXT
 
-      if (!WebCrawlerFileUtils.isFileExists(fileName))
-          WebCrawlerFileUtils.storeFile(fileName, URLReadingUtility.read(url))
+      if (!WebCrawlerFileUtils.isFileExists(fileName)) {
+        logger.debug(fileName)
+        WebCrawlerFileUtils.storeFile(fileName, URLReadingUtility.read(url))
+      }
   }
 }

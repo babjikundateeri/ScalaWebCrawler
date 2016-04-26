@@ -14,8 +14,9 @@ object WebCrawler {
     // loading properties
     WebCrawlerProperties.loadProperties
 
-    // load  parse args
+    // load  parse args, to get year number as argument
     parseArguments(args)
+
     // start crawler
     startCrawler
   }
@@ -24,20 +25,19 @@ object WebCrawler {
   def startCrawler = {
     val urlcontent = URLReadingUtility.read(WebCrawlerProperties.getURL)
     val listMonthlyDataBean = WebCrawlerParser.parseArchivesLinksPage(urlcontent)
-
     val mailArchiveDataBeans: List[MailArchiveDataBean] = MonthlyDataBeanService.doService(listMonthlyDataBean)
+
     logger.debug("No of mails to be downloaded " + mailArchiveDataBeans.length  )
 
     MailArchiveDataBeanService.doService(mailArchiveDataBeans)
   }
 
   def parseArguments(args: Array[String]): Unit = {
-      args.length compare 1 match {
-        case 0 =>
-          logger.debug("changing year from  " + WebCrawlerProperties.getYear + " to " + args(0))
-          WebCrawlerProperties.setYear(args(0))
-        case _ =>
-          logger.debug("Running for the Year " + WebCrawlerProperties.getYear)
-      }
+    if(args.length > 0) {
+      logger.debug("changing year from  " + WebCrawlerProperties.getYear + " to " + args(0))
+      WebCrawlerProperties.setYear(args(0))
+    } else {
+      logger.debug("Running for the Year " + WebCrawlerProperties.getYear)
+    }
   }
 }

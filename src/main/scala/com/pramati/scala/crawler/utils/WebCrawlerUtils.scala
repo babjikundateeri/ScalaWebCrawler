@@ -55,11 +55,11 @@ object WebCrawlerParser {
 
     logger.debug("No of matches found  " + nodeSeqOfTRs.length)
 
-    def trNodeToMonthlyDataBeanList (nodeSeq: NodeSeq) : List[MonthlyDataBean] = nodeSeq.tail.isEmpty match {
-    case false =>
-      trNodeToMonthlyDataBeanList(nodeSeq.tail) :+ getMonthlyDataBean(nodeSeq.head)
-    case true =>
-      List(getMonthlyDataBean(nodeSeq.head))
+    def trNodeToMonthlyDataBeanList (nodeSeq: NodeSeq) : List[MonthlyDataBean] = nodeSeq match {
+        case NodeSeq.Empty =>
+          Nil
+        case _ =>
+          trNodeToMonthlyDataBeanList(nodeSeq.tail) :+ getMonthlyDataBean(nodeSeq.head)
     }
 
     def getMonthlyDataBean(node: Node) : MonthlyDataBean = {
@@ -74,11 +74,11 @@ object WebCrawlerParser {
   def parseArchivesMailsPage(urlContent : String, bean: MonthlyDataBean): List[MailArchiveDataBean] = {
     val nodeSeq: NodeSeq = (scala.xml.XML.loadString(urlContent) \\ "html" \ "body" \ "table" filter { _ \\ "@id" exists (_.text == "msglist") }) \ "tbody" \ "tr"
 
-    def trNodeToMailArchiveDataBean(nodeSeq: NodeSeq): List[MailArchiveDataBean] = nodeSeq.tail.isEmpty match{
-      case false =>
+    def trNodeToMailArchiveDataBean(nodeSeq: NodeSeq): List[MailArchiveDataBean] = nodeSeq match {
+      case NodeSeq.Empty =>
+        Nil
+      case _ =>
         trNodeToMailArchiveDataBean(nodeSeq.tail) :+ getMailArchiveDataBeans(nodeSeq.head, bean)
-      case true =>
-        List(getMailArchiveDataBeans(nodeSeq.head, bean))
     }
 
     def getMailArchiveDataBeans(node: Node, bean: MonthlyDataBean): MailArchiveDataBean = {
