@@ -2,6 +2,7 @@ package com.pramati.scala.crawler.utils
 
 import java.io.{File, PrintWriter}
 
+import com.pramati.scala.crawler.dtos.MonthlyDataBean
 import org.slf4j.LoggerFactory
 
 import scala.xml.{Elem, MetaData, Node, NodeSeq}
@@ -54,35 +55,10 @@ object WebCrawlerParser {
         case false => {}
         case true =>
           val id = (node \\ "@id").text
-
-          logger.debug("Id is " + id)
-          val trchilds: Seq[Node] = node.child
-
-          val trchildsIterator = trchilds.iterator
-          while (trchildsIterator.hasNext) {
-            val tdNode: Node = trchildsIterator.next()
-
-            checkByAttributeKeyAndValue(tdNode, "class", "msgcount")   match {
-              case NodeSeq.Empty => {}
-              case _ =>
-               // msgcount = tdNode.text
-                logger.debug("message count :  " + tdNode.text)
-            }
-            checkByAttributeKeyAndValue(tdNode, "class", "links")   match {
-              case NodeSeq.Empty => {}
-              case _ =>
-                val aelecontent: NodeSeq = tdNode \\ "td" \ "span" \ "a"
-                for (ele : Node <- aelecontent) {
-                  ele.text match {
-                    case "Date" =>
-                      val eleAttribuets: Option[Seq[Node]] = ele.attribute("href")
-                      val href = eleAttribuets.get.head
-                      logger.debug("id " + id + "  / msg count "  )
-                    case _ => {}
-                  }
-                }
-            }
-          }
+          val msgcount = (node \\ "td" ).tail.tail.head.text.toInt
+          val href = (node \\ "@href").tail.head.text
+          val monthlyDataBean = MonthlyDataBean(id, href, msgcount)
+          logger.debug(monthlyDataBean.toString)
 
       }
 
