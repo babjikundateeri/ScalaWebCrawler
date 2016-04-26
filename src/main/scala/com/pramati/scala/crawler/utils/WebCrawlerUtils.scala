@@ -39,30 +39,46 @@ object WebCrawlerParser {
     println(e)
   }
 
-  def parseUrlContent(content: String): NodeSeq = {
+  def parseUrlContent(content: String): List[MonthlyDataBean] = {
     logger.debug("in parsing html content")
     val gridtable: NodeSeq  = scala.xml.XML.loadString(content)   \\ "html" \\ "body" \ "table" \\  "table" \ "tbody" \ "tr"
     logger.debug("No of matches found  " + gridtable.length)
 
 
-    val nodeIterator  = gridtable.iterator
-    logger.debug("---------- " + nodeIterator.hasNext)
-    logger.debug("" + nodeIterator)
-    while (nodeIterator.hasNext) {
-      val node: Node = nodeIterator.next()
+//    gridtable.head;
 
+
+//    val nodeIterator  = gridtable.iterator
+//    logger.debug("---------- " + nodeIterator.hasNext)
+//    logger.debug("" + nodeIterator)
+//    while (nodeIterator.hasNext) {
+//
+//
+//    }
+    def printNodesInRecusive (nodeSeq: NodeSeq) : List[MonthlyDataBean] = nodeSeq.tail.isEmpty match {
+    case false =>
+      val monthlyDataBean = getMonthlyDataBean(nodeSeq.head);
+      monthlyDataBean.id == "0" match {
+        case true => printNodesInRecusive(nodeSeq.tail)
+        case false => printNodesInRecusive(nodeSeq.tail) :+ monthlyDataBean
+      }
+//
+//      printNodesInRecusive(nodeSeq.tail) :+ monthlyDataBean
+    case true =>
+        List(getMonthlyDataBean(nodeSeq.head))
+    }
+    def getMonthlyDataBean(node: Node) : MonthlyDataBean = {
       node.text.contains(WebCrawlerProperties.getProperty("Year")) match  {
-        case false => {}
         case true =>
           val id = (node \\ "@id").text
           val msgcount = (node \\ "td" ).tail.tail.head.text.toInt
           val href = (node \\ "@href").tail.head.text
-          val monthlyDataBean = MonthlyDataBean(id, href, msgcount)
-          logger.debug(monthlyDataBean.toString)
+          MonthlyDataBean(id, href, msgcount)
+        case false =>
+          MonthlyDataBean("0", "0", 0)
 
       }
-
     }
-    gridtable
+    printNodesInRecusive(gridtable)
   }
 }

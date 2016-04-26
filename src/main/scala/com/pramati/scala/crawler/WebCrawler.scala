@@ -7,12 +7,20 @@ import org.slf4j.LoggerFactory
   * Created by babjik on 22/4/16.
   */
 object WebCrawler {
+  val logger = LoggerFactory.getLogger(this.getClass)
   def main(args: Array[String]) {
-    val logger = LoggerFactory.getLogger(this.getClass)
-
+    // loading properties
     WebCrawlerProperties.loadProperties
-    logger.debug(" Year " + WebCrawlerProperties.getProperty("Year"))
+
+    // start crawler
+    startCrawler
+  }
+
+
+  def startCrawler: Unit = {
     val urlcontent = URLReadingUtility.read(WebCrawlerProperties.getProperty("BaseURL") + WebCrawlerProperties.getProperty("ArchivesFolder"))
-    WebCrawlerParser.parseUrlContent(urlcontent)
+    val result = WebCrawlerParser.parseUrlContent(urlcontent)
+
+    logger.debug("Result " + result)
   }
 }
