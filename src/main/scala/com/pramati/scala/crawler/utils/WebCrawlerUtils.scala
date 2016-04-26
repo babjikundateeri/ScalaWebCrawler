@@ -2,10 +2,11 @@ package com.pramati.scala.crawler.utils
 
 import java.io.{File, PrintWriter}
 
-import com.pramati.scala.crawler.dtos.MonthlyDataBean
+import com.pramati.scala.crawler.dtos.{MailArchiveDataBean, MonthlyDataBean}
 import org.slf4j.LoggerFactory
 
-import scala.xml.{Elem, MetaData, Node, NodeSeq}
+import scala.annotation.tailrec
+import scala.xml.{Node, NodeSeq}
 
 /**
   * Created by babjik on 22/4/16.
@@ -15,7 +16,7 @@ object URLReadingUtility {
   def read(url: String): String = io.Source.fromURL(url).mkString
 }
 
-object CrawlerFileUtils {
+object WebCrawlerFileUtils {
   def isFileExists(file: String): Boolean = new File(file).exists()
 
   def storeFile(file: String, content: String): Unit = {
@@ -24,16 +25,35 @@ object CrawlerFileUtils {
     writer.close()
   }
 
+  def getBaseDir(bean: MonthlyDataBean) : String = WebCrawlerProperties.getOutDir + "/" +
+    WebCrawlerProperties.getArchivesFolder +
+    bean.id + WebCrawlerProperties.MBOX
+
+  def getNoOfFileInDir(dir: String): Int = {
+    isFileExists(dir) match {
+      case true =>
+        new File(dir).listFiles().length
+      case false =>
+        0
+    }
+  }
+
+  def createDirectories(dir: String): Boolean = isFileExists(dir) match  {
+    case false => new File(dir).mkdir()
+    case true => false
+  }
+
 }
 
 object WebCrawlerParser {
   val logger = LoggerFactory.getLogger(this.getClass)
 
-  def parseUrlContent(content: String): List[MonthlyDataBean] = {
-    logger.debug("in parsing html content")
-    val gridtable: NodeSeq  = (scala.xml.XML.loadString(content)   \\ "html" \\ "body" \ "table" \\  "table" \ "tbody" \ "tr" ).filter(_.text.contains(WebCrawlerProperties.getProperty("Year")))
+  def parseArchivesLinksPage(content: String): List[MonthlyDataBean] = {
+    logger.debug("in parsing html content for the Year " + WebCrawlerProperties.getYear)
+    val nodeSeqOfTRs: NodeSeq  = (scala.xml.XML.loadString(content)   \\ "html" \\ "body" \ "table" \\  "table" \ "tbody" \ "tr" )
+      .filter(_.text.contains(WebCrawlerProperties.getYear))
 
-    logger.debug("No of matches found  " + gridtable.length)
+    logger.debug("No of matches found  " + nodeSeqOfTRs.length)
 
     def trNodeToMonthlyDataBeanList (nodeSeq: NodeSeq) : List[MonthlyDataBean] = nodeSeq.tail.isEmpty match {
     case false =>
@@ -48,6 +68,26 @@ object WebCrawlerParser {
       val href = (node \\ "@href").tail.head.text
       MonthlyDataBean(id, href, msgcount)
     }
-    trNodeToMonthlyDataBeanList(gridtable)
+    trNodeToMonthlyDataBeanList(nodeSeqOfTRs)
+  }
+
+  def parseArchivesMailsPage(urlContent : String): List[MailArchiveDataBean] = {
+    val nodeSeq: NodeSeq = (scala.xml.XML.loadString(urlContent) \\ "html" \ "body" \ "table" filter { _ \\ "@id" exists (_.text == "msglist") }) \ "tbody" \ "tr"
+
+    def trNodeToMailArchiveDataBean(nodeSeq: NodeSeq): List[MailArchiveDataBean] = nodeSeq.tail.isEmpty match{
+      case false =>
+        trNodeToMailArchiveDataBean(nodeSeq.tail) :+ getMailArchiveDataBeans(nodeSeq.head)
+      case true =>
+        List(getMailArchiveDataBeans(nodeSeq.head))
+    }
+
+    def getMailArchiveDataBeans(node: Node): MailArchiveDataBean = {
+      val author = (node \\ "td" filter { _ \\ "@class" exists (_.text == "author") }).text
+      val date = (node \\ "td" filter { _ \\ "@class" exists (_.text == "date") }).text
+      val subject = ((node \\ "td" filter { _ \\ "@class" exists (_.text == "subject") }) \ "a" ).text
+      val href = ((node \\ "td" filter { _ \\ "@class" exists (_.text == "subject") }) \ "a"  \ "@href" ).text
+      MailArchiveDataBean(author, subject, href, date)
+    }
+    trNodeToMailArchiveDataBean(nodeSeq)
   }
 }
