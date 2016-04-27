@@ -5,7 +5,6 @@ import java.io.{File, PrintWriter}
 import com.pramati.scala.crawler.dtos.{MailArchiveDataBean, MonthlyDataBean}
 import org.slf4j.LoggerFactory
 
-import scala.annotation.tailrec
 import scala.xml.{Node, NodeSeq}
 
 /**
@@ -17,6 +16,7 @@ object URLReadingUtility {
 }
 
 object WebCrawlerFileUtils {
+  val logger = LoggerFactory.getLogger(this.getClass)
   def isFileExists(file: String): Boolean = new File(file).exists()
 
   def storeFile(file: String, content: String): Unit = {
@@ -29,20 +29,13 @@ object WebCrawlerFileUtils {
     WebCrawlerProperties.getArchivesFolder +
     bean.id + WebCrawlerProperties.MBOX
 
-  def getNoOfFileInDir(dir: String): Int = {
-    isFileExists(dir) match {
-      case true =>
-        new File(dir).listFiles().length
-      case false =>
-        0
+  def getNoOfFileInDir(dir: String): Int =  if (isFileExists(dir)) new File(dir).listFiles().length else 0
+
+  def createDirectories(dir: String): Unit = {
+    if (!isFileExists(dir)) {
+      new File(dir).mkdirs()
     }
   }
-
-  def createDirectories(dir: String): Boolean = isFileExists(dir) match  {
-    case false => new File(dir).mkdir()
-    case true => false
-  }
-
 }
 
 object WebCrawlerParser {

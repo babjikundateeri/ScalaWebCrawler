@@ -1,6 +1,6 @@
 package com.pramati.scala.crawler.service
 
-import com.pramati.scala.crawler.dtos.{MailArchiveDataBean, MonthlyDataBean}
+import com.pramati.scala.crawler.dtos.{DataBean, MailArchiveDataBean, MonthlyDataBean}
 import com.pramati.scala.crawler.utils.{URLReadingUtility, WebCrawlerFileUtils, WebCrawlerParser, WebCrawlerProperties}
 import org.slf4j.LoggerFactory
 
@@ -9,7 +9,12 @@ import scala.annotation.tailrec
 /**
   * Created by babjik on 26/4/16.
   */
-object MonthlyDataBeanService {
+
+trait ServiceProvider {
+
+}
+
+object MonthlyDataBeanService extends ServiceProvider{
   val logger = LoggerFactory.getLogger(this.getClass)
 
   def doService(input: List[MonthlyDataBean]): List[MailArchiveDataBean] = input match {
@@ -22,7 +27,7 @@ object MonthlyDataBeanService {
     val outDir = WebCrawlerFileUtils.getBaseDir(bean)
     logger.debug("Out Dir " + outDir)
     if(!WebCrawlerFileUtils.isFileExists(outDir)) {
-      logger.debug("dir not present")
+      logger.debug("Creating dir .. " + outDir)
       WebCrawlerFileUtils.createDirectories(outDir)
     }
     // it might contain morethan 1 page
@@ -47,7 +52,7 @@ object MonthlyDataBeanService {
 }
 
 
-object MailArchiveDataBeanService {
+object MailArchiveDataBeanService extends ServiceProvider{
   val logger = LoggerFactory.getLogger(this.getClass)
 
   @tailrec

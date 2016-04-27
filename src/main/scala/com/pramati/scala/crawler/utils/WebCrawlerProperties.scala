@@ -42,7 +42,7 @@ object WebCrawlerProperties {
   def getYear: String = getProperty(YEAR)
   def getBaseURL: String = getProperty(BASE_URL)
   def getArchivesFolder: String = getProperty(ARCHIVES_FOLDER)
-  def getURL: String = getBaseURL + getArchivesFolder
+  def getURL: String = s"$getBaseURL$getArchivesFolder"
   def getOutDir: String = System.getProperty(USER_HOME)
   def getNoOfMailsPerPage: Int = getProperty(N0_OF_MAILS_PER_PAGE).toInt
 
