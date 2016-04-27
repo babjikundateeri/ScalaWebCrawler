@@ -21,6 +21,8 @@ object WebCrawlerProperties {
   val MBOX: String = ".mbox"
   val USER_HOME: String = "user.home"
   val FILE_EXT:String = ".eml"
+  val MAIN_THREAD_POOL_SIZE: String = "MainThreadPoolSize"
+  val FILE_WRITER_CONCURRENCY: String = "FileWriterConcurrency"
 
   def apply: Unit = loadProperties
   def loadProperties: Unit = {
@@ -45,6 +47,8 @@ object WebCrawlerProperties {
   def getURL: String = s"$getBaseURL$getArchivesFolder"
   def getOutDir: String = System.getProperty(USER_HOME)
   def getNoOfMailsPerPage: Int = getProperty(N0_OF_MAILS_PER_PAGE).toInt
+  def getMainThreadPoolSize: Int = getProperty(MAIN_THREAD_POOL_SIZE).toInt
+  def getFileWriterConcurrency: Int = getProperty(FILE_WRITER_CONCURRENCY).toInt
 
   def setYear(year: String) : Unit = properties.setProperty(YEAR, year)
 

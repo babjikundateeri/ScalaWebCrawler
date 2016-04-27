@@ -20,7 +20,7 @@ object MonthlyDataBeanService extends ServiceProvider{
   val logger = LoggerFactory.getLogger(this.getClass)
 
   def doService (input: List[MonthlyDataBean]): List[MailArchiveDataBean] = {
-    val pool: ExecutorService = Executors.newFixedThreadPool(5)
+    val pool: ExecutorService = Executors.newFixedThreadPool(WebCrawlerProperties.getMainThreadPoolSize)
 
     def go(monthlyDataBeans: List[MonthlyDataBean]): List[Future[List[MailArchiveDataBean]]] = {
         monthlyDataBeans match {
@@ -42,7 +42,7 @@ object MailArchiveDataBeanService extends ServiceProvider{
   val logger = LoggerFactory.getLogger(this.getClass)
 
   def doService(input:List[MailArchiveDataBean]): Unit = {
-    val pool: ExecutorService = Executors.newFixedThreadPool(50)
+    val pool: ExecutorService = Executors.newFixedThreadPool(WebCrawlerProperties.getFileWriterConcurrency)
     @tailrec
     def go(input:List[MailArchiveDataBean]): Unit = input match {
       case Nil => // just returning
