@@ -25,10 +25,11 @@ object WebCrawler {
   def startCrawler = {
     val urlcontent = URLReadingUtility.read(WebCrawlerProperties.getURL)
     val listMonthlyDataBean = WebCrawlerParser.parseArchivesLinksPage(urlcontent)
+
+    logger.debug("Got " + listMonthlyDataBean.length + " records to process")
     val mailArchiveDataBeans: List[MailArchiveDataBean] = MonthlyDataBeanService.doService(listMonthlyDataBean)
 
-    logger.debug("No of mails to be downloaded " + mailArchiveDataBeans.length  )
-
+    logger.debug("No of mails to be downloaded " + mailArchiveDataBeans.length )
     MailArchiveDataBeanService.doService(mailArchiveDataBeans)
   }
 

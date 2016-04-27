@@ -1,6 +1,7 @@
 package com.pramati.scala.crawler.utils
 
 import java.io.{File, PrintWriter}
+import java.util.concurrent.Future
 
 import com.pramati.scala.crawler.dtos.{MailArchiveDataBean, MonthlyDataBean}
 import org.slf4j.LoggerFactory
@@ -26,7 +27,7 @@ object WebCrawlerFileUtils {
   }
 
   def getBaseDir(bean: MonthlyDataBean) : String = WebCrawlerProperties.getOutDir concat "/" concat
-    WebCrawlerProperties.getArchivesFolder concat
+    WebCrawlerProperties.getArchivesFolder concat WebCrawlerProperties.getYear concat "/" concat
     bean.id concat WebCrawlerProperties.MBOX
 
   def getNoOfFileInDir(dir: String): Int =  if (isFileExists(dir)) new File(dir).listFiles().length else 0
@@ -82,5 +83,15 @@ object WebCrawlerParser {
       MailArchiveDataBean(author, subject, href, date, bean)
     }
     trNodeToMailArchiveDataBean(nodeSeq)
+  }
+}
+
+object WebCrawlerCollectionUtility {
+  def reArrangeCollection(input: List[Future[List[MailArchiveDataBean]]]): List[MailArchiveDataBean] = {
+    input match {
+      case Nil => List.empty
+      case _ =>
+        input.head.get() ::: reArrangeCollection(input.tail)
+    }
   }
 }

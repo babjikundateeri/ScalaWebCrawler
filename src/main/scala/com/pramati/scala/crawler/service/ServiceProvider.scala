@@ -1,7 +1,9 @@
 package com.pramati.scala.crawler.service
 
-import com.pramati.scala.crawler.dtos.{DataBean, MailArchiveDataBean, MonthlyDataBean}
-import com.pramati.scala.crawler.utils.{URLReadingUtility, WebCrawlerFileUtils, WebCrawlerParser, WebCrawlerProperties}
+import java.util.concurrent.{ExecutorService, Executors, Future}
+
+import com.pramati.scala.crawler.dtos.{MailArchiveDataBean, MonthlyDataBean}
+import com.pramati.scala.crawler.utils._
 import org.slf4j.LoggerFactory
 
 import scala.annotation.tailrec
@@ -17,37 +19,21 @@ trait ServiceProvider {
 object MonthlyDataBeanService extends ServiceProvider{
   val logger = LoggerFactory.getLogger(this.getClass)
 
-  def doService(input: List[MonthlyDataBean]): List[MailArchiveDataBean] = input match {
-    case Nil => Nil// do nothing, return Nil
-    case _ =>
-       doService(input.tail) ::: processMontlyDataBean(input.head)
-  }
+  def doService (input: List[MonthlyDataBean]): List[MailArchiveDataBean] = {
+    val pool: ExecutorService = Executors.newFixedThreadPool(5)
 
-  def processMontlyDataBean(bean: MonthlyDataBean): List[MailArchiveDataBean] = {
-    val outDir = WebCrawlerFileUtils.getBaseDir(bean)
-    logger.debug("Out Dir " + outDir)
-    if(!WebCrawlerFileUtils.isFileExists(outDir)) {
-      logger.debug("Creating dir .. " + outDir)
-      WebCrawlerFileUtils.createDirectories(outDir)
-    }
-    // it might contain morethan 1 page
-    val filesCountInDir = WebCrawlerFileUtils.getNoOfFileInDir(outDir)
-    logger.debug(bean.href + " -- Mails at local dir  / server dir :: " + filesCountInDir +" / " +bean.msgCount)
-
-    if (filesCountInDir >= bean.msgCount) {
-      List.empty
-    } else {
-      val noOfPages: Int = bean.msgCount / WebCrawlerProperties.getNoOfMailsPerPage + 1
-      logger.debug("No of pages to read " + noOfPages)
-      def go (pageNumber: Int) : List[MailArchiveDataBean] = {
-        if(pageNumber < 0) List.empty
-        else {
-          val url = WebCrawlerProperties.getURL concat bean.href concat "?" concat pageNumber.toString
-          WebCrawlerParser.parseArchivesMailsPage(URLReadingUtility.read(url), bean) ::: go (pageNumber -1)
+    def go(monthlyDataBeans: List[MonthlyDataBean]): List[Future[List[MailArchiveDataBean]]] = {
+        monthlyDataBeans match {
+          case Nil =>  Nil// just return
+          case _ =>
+            val worker = new MonthlyDataBeanWorker(monthlyDataBeans.head)
+            val result: Future[List[MailArchiveDataBean]] = pool.submit(worker)
+            go(monthlyDataBeans.tail) :+ result
         }
-      }
-      go(noOfPages-1)
     }
+    val listOfFututres = go(input)
+    pool.shutdown()
+    WebCrawlerCollectionUtility.reArrangeCollection(listOfFututres)
   }
 }
 
@@ -55,24 +41,18 @@ object MonthlyDataBeanService extends ServiceProvider{
 object MailArchiveDataBeanService extends ServiceProvider{
   val logger = LoggerFactory.getLogger(this.getClass)
 
-  @tailrec
-  def doService(input:List[MailArchiveDataBean]): Unit = input match {
-    case Nil => // just returning
-    case _ =>
-      processMailArchiveDataBean(input.head)
-      doService(input.tail)
-  }
+  def doService(input:List[MailArchiveDataBean]): Unit = {
+    val pool: ExecutorService = Executors.newFixedThreadPool(50)
+    @tailrec
+    def go(input:List[MailArchiveDataBean]): Unit = input match {
+      case Nil => // just returning
+      case _ =>
+        val worker = new MailArchivesDataBeanWorker(input.head)
+        pool.submit(worker)
+        go(input.tail)
+    }
 
-  def processMailArchiveDataBean(mailArchiveDataBean: MailArchiveDataBean): Unit = {
-      val url = WebCrawlerProperties.getURL concat mailArchiveDataBean.monthlyDataBean.id concat
-                WebCrawlerProperties.MBOX concat  "/ajax/" concat mailArchiveDataBean.href
-
-      val baseDir = WebCrawlerFileUtils.getBaseDir(mailArchiveDataBean.monthlyDataBean)
-      val fileName = baseDir concat "/" concat mailArchiveDataBean.date concat WebCrawlerProperties.FILE_EXT
-
-      if (!WebCrawlerFileUtils.isFileExists(fileName)) {
-        logger.debug("Writing data to " +fileName)
-        WebCrawlerFileUtils.storeFile(fileName, URLReadingUtility.read(url))
-      }
+    go(input)
+    pool.shutdown()
   }
 }
