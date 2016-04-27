@@ -25,9 +25,9 @@ object WebCrawlerFileUtils {
     writer.close()
   }
 
-  def getBaseDir(bean: MonthlyDataBean) : String = WebCrawlerProperties.getOutDir + "/" +
-    WebCrawlerProperties.getArchivesFolder +
-    bean.id + WebCrawlerProperties.MBOX
+  def getBaseDir(bean: MonthlyDataBean) : String = WebCrawlerProperties.getOutDir concat "/" concat
+    WebCrawlerProperties.getArchivesFolder concat
+    bean.id concat WebCrawlerProperties.MBOX
 
   def getNoOfFileInDir(dir: String): Int =  if (isFileExists(dir)) new File(dir).listFiles().length else 0
 
@@ -53,12 +53,14 @@ object WebCrawlerParser {
           Nil
         case _ =>
           trNodeToMonthlyDataBeanList(nodeSeq.tail) :+ getMonthlyDataBean(nodeSeq.head)
-    }
+      }
 
     def getMonthlyDataBean(node: Node) : MonthlyDataBean = {
+      logger.debug("node ::: "+ node)
       val id = (node \\ "@id").text
-      val msgcount = (node \\ "td" ).tail.tail.head.text.toInt
-      val href = (node \\ "@href").tail.head.text
+      val msgcount = (node \\ "td" filter { _ \\ "@class" exists (_.text == "msgcount") }).text.toInt
+      val href = (((node \\ "td" filter { _ \\ "@class" exists (_.text == "links") }) \ "span" \ "a" filter { _ \\ "@href" exists (_.text.contains("date")) } )\ "@href") . text
+      logger debug (s"$id :: $msgcount :: $href ")
       MonthlyDataBean(id, href, msgcount)
     }
     trNodeToMonthlyDataBeanList(nodeSeqOfTRs)

@@ -64,14 +64,14 @@ object MailArchiveDataBeanService extends ServiceProvider{
   }
 
   def processMailArchiveDataBean(mailArchiveDataBean: MailArchiveDataBean): Unit = {
-      val url = WebCrawlerProperties.getURL + mailArchiveDataBean.monthlyDataBean.id +
-                WebCrawlerProperties.MBOX + "/ajax/" + mailArchiveDataBean.href
+      val url = WebCrawlerProperties.getURL concat mailArchiveDataBean.monthlyDataBean.id concat
+                WebCrawlerProperties.MBOX concat  "/ajax/" concat mailArchiveDataBean.href
 
       val baseDir = WebCrawlerFileUtils.getBaseDir(mailArchiveDataBean.monthlyDataBean)
-      val fileName = baseDir+ "/" +mailArchiveDataBean.date + WebCrawlerProperties.FILE_EXT
+      val fileName = baseDir + "/" + mailArchiveDataBean.date + WebCrawlerProperties.FILE_EXT
 
       if (!WebCrawlerFileUtils.isFileExists(fileName)) {
-        logger.debug(fileName)
+        logger.debug("Writing data to " +fileName)
         WebCrawlerFileUtils.storeFile(fileName, URLReadingUtility.read(url))
       }
   }
