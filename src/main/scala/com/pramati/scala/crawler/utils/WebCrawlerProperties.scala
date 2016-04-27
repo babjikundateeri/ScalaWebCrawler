@@ -31,7 +31,7 @@ object WebCrawlerProperties {
     val source = Source.fromURL(url)
     properties = new Properties()
     properties.load(source.bufferedReader())
-    logger.debug("Properties " + properties)
+    logger.debug("Properties from file " + properties)
   }
 
 

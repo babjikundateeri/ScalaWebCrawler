@@ -42,7 +42,7 @@ object MonthlyDataBeanService extends ServiceProvider{
       def go (pageNumber: Int) : List[MailArchiveDataBean] = {
         if(pageNumber < 0) List.empty
         else {
-          val url = WebCrawlerProperties.getURL + bean.href + "?" + pageNumber
+          val url = WebCrawlerProperties.getURL concat bean.href concat "?" concat pageNumber.toString
           WebCrawlerParser.parseArchivesMailsPage(URLReadingUtility.read(url), bean) ::: go (pageNumber -1)
         }
       }
@@ -68,7 +68,7 @@ object MailArchiveDataBeanService extends ServiceProvider{
                 WebCrawlerProperties.MBOX concat  "/ajax/" concat mailArchiveDataBean.href
 
       val baseDir = WebCrawlerFileUtils.getBaseDir(mailArchiveDataBean.monthlyDataBean)
-      val fileName = baseDir + "/" + mailArchiveDataBean.date + WebCrawlerProperties.FILE_EXT
+      val fileName = baseDir concat "/" concat mailArchiveDataBean.date concat WebCrawlerProperties.FILE_EXT
 
       if (!WebCrawlerFileUtils.isFileExists(fileName)) {
         logger.debug("Writing data to " +fileName)

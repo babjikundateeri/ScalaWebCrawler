@@ -56,11 +56,9 @@ object WebCrawlerParser {
       }
 
     def getMonthlyDataBean(node: Node) : MonthlyDataBean = {
-      logger.debug("node ::: "+ node)
       val id = (node \\ "@id").text
       val msgcount = (node \\ "td" filter { _ \\ "@class" exists (_.text == "msgcount") }).text.toInt
       val href = (((node \\ "td" filter { _ \\ "@class" exists (_.text == "links") }) \ "span" \ "a" filter { _ \\ "@href" exists (_.text.contains("date")) } )\ "@href") . text
-      logger debug (s"$id :: $msgcount :: $href ")
       MonthlyDataBean(id, href, msgcount)
     }
     trNodeToMonthlyDataBeanList(nodeSeqOfTRs)
