@@ -25,7 +25,7 @@ class MonthlyDataBeanWorker(monthlyDataBean: MonthlyDataBean) extends Callable[L
     }
     // it might contain morethan 1 page
     val filesCountInDir = WebCrawlerFileUtils.getNoOfFileInDir(outDir)
-    logger.debug(bean.href + " -- Mails at local dir  / server dir :: " + filesCountInDir +" / " +bean.msgCount)
+    logger.info(bean.href + " -- Mails at local dir  / server dir :: " + filesCountInDir +" / " +bean.msgCount)
 
     if (filesCountInDir >= bean.msgCount) {
       List.empty
