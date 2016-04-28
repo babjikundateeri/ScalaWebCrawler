@@ -9,15 +9,19 @@ import org.slf4j.LoggerFactory
 /**
   * Created by babjik on 27/4/16.
   */
-class MailArchivesDataBeanWorker(mailArchiveDataBean: MailArchiveDataBean) extends Callable[MailArchiveDataBean]{
+class MailArchivesDataBeanWorker(mailArchiveDataBean: MailArchiveDataBean) extends Callable[Boolean]{
   val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def call(): MailArchiveDataBean = {
-    processMailArchiveDataBean(mailArchiveDataBean)
-    mailArchiveDataBean
+  override def call(): Boolean = {
+    try {
+      processMailArchiveDataBean(mailArchiveDataBean)
+    } catch {
+      case e: Exception => logger.warn(e.getMessage)
+        false
+    }
   }
 
-  def processMailArchiveDataBean(mailArchiveDataBean: MailArchiveDataBean): Unit = {
+  def processMailArchiveDataBean(mailArchiveDataBean: MailArchiveDataBean): Boolean = {
     val url = WebCrawlerProperties.getURL concat mailArchiveDataBean.monthlyDataBean.id concat
       WebCrawlerProperties.MBOX concat  "/ajax/" concat mailArchiveDataBean.href
 
@@ -26,6 +30,9 @@ class MailArchivesDataBeanWorker(mailArchiveDataBean: MailArchiveDataBean) exten
     if (!WebCrawlerFileUtils.isFileExists(fileName)) {
       logger.debug("Writing data to " +fileName)
       WebCrawlerFileUtils.storeFile(fileName, URLReadingUtility.read(url))
+      true
+    } else {
+      false
     }
   }
 }

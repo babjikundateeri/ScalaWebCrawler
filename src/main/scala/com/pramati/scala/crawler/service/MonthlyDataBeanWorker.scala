@@ -13,7 +13,15 @@ class MonthlyDataBeanWorker(monthlyDataBean: MonthlyDataBean) extends Callable[L
   val logger = LoggerFactory.getLogger(this.getClass)
 
   override def call(): List[MailArchiveDataBean] = {
-    processMontlyDataBean(monthlyDataBean)
+    try {
+      processMontlyDataBean(monthlyDataBean)
+    } catch {
+      case e: Exception =>
+        logger.warn("Got an exception while processing data of " + monthlyDataBean.href, e.getMessage)
+        e.printStackTrace()
+        List.empty
+    }
+
   }
 
   def processMontlyDataBean(bean: MonthlyDataBean): List[MailArchiveDataBean] = {
@@ -31,7 +39,7 @@ class MonthlyDataBeanWorker(monthlyDataBean: MonthlyDataBean) extends Callable[L
       List.empty
     } else {
       val noOfPages: Int = bean.msgCount / WebCrawlerProperties.getNoOfMailsPerPage + 1
-      logger.debug("No of pages to read " + noOfPages)
+      logger.info(bean.href + "No of pages to read " + noOfPages)
       def go (pageNumber: Int) : List[MailArchiveDataBean] = {
         if(pageNumber < 0) List.empty
         else {

@@ -31,7 +31,6 @@ object WebCrawler {
 
     logger.info("No of mails to be downloaded " + mailArchiveDataBeans.length )
     MailArchiveDataBeanService.doService(mailArchiveDataBeans)
-    logger.info("Crawler process done..")
   }
 
   def parseArguments(args: Array[String]): Unit = {
