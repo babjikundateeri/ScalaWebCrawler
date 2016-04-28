@@ -43,35 +43,16 @@ object MailArchiveDataBeanService extends ServiceProvider{
 
   def doService(input:List[MailArchiveDataBean]): Unit = {
     val pool: ExecutorService = Executors.newFixedThreadPool(WebCrawlerProperties.getFileWriterConcurrency)
-    val watcher = new PoolWatcher(input.length)
-    watcher.start()
     @tailrec
     def go(input:List[MailArchiveDataBean]): Unit = input match {
       case Nil => // just returning
       case _ =>
         val worker = new MailArchivesDataBeanWorker(input.head)
-        watcher updateFromWorker pool.submit(worker).get()
+        pool.submit(worker)
         go(input.tail)
     }
 
     go(input)
     pool.shutdown()
   }
-}
-
-
-class PoolWatcher(input: Int) extends Thread{
-  var ctrS: Int = 0
-  var ctrF: Int = 0
-  def updateFromWorker(status: Boolean): Unit = if(status) ctrS += 1 else ctrF += 1
-  override def run(): Unit = {
-    while(input > ctrF + ctrS) {
-      printStatus
-      Thread.sleep(500)
-    }
-    printStatus
-    println("")
-  }
-
-  def printStatus = print(s"\rQueue In [$input], Processed [$ctrS], Skipped [$ctrF]")
 }
