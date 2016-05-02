@@ -17,7 +17,7 @@ class MonthlyDataBeanWorker(monthlyDataBean: MonthlyDataTransferObject) extends 
       processMontlyDataBean(monthlyDataBean)
     } catch {
       case e: Exception =>
-        logger.warn("Got an exception while processing data of " + monthlyDataBean.href, e.getMessage)
+        logger.warn(s"Got an exception while processing data of ${monthlyDataBean.href}", e.getMessage)
         e.printStackTrace()
         List.empty
     }
@@ -26,26 +26,26 @@ class MonthlyDataBeanWorker(monthlyDataBean: MonthlyDataTransferObject) extends 
 
   private def processMontlyDataBean(bean: MonthlyDataTransferObject): List[MailArchiveDataTransferObject] = {
     val outDir = WebCrawlerFileUtils.getBaseDir(bean)
-    logger.debug("Out Dir " + outDir)
+    logger.debug(s"Out Dir is $outDir")
     if(!WebCrawlerFileUtils.isFileExists(outDir)) {
-      logger.debug("Creating dir .. " + outDir)
+      logger.debug(s"Creating dir .. $outDir ")
       WebCrawlerFileUtils.createDirectories(outDir)
     }
     // it might contain morethan 1 page
     val filesCountInDir = WebCrawlerFileUtils.getNoOfFileInDir(outDir)
-    logger.info(bean.href + " -- Mails at local dir  / server dir :: " + filesCountInDir +" / " +bean.msgCount)
+    logger.info(s"${bean.href}  -- Mails at local dir  / server dir :: $filesCountInDir /  ${bean.msgCount}")
 
     if (filesCountInDir >= bean.msgCount) {
       List.empty
     } else {
       val noOfPages: Int = bean.msgCount / WebCrawlerProperties.getNoOfMailsPerPage + 1
-      logger.info(bean.href + "No of pages to read " + noOfPages)
+      logger.info(s"${bean.href} No of pages to read  $noOfPages")
 
 
       def go (pageNumber: Int) : List[MailArchiveDataTransferObject] = {
         if(pageNumber < 0) List.empty
         else {
-          val url = WebCrawlerProperties.getURL concat bean.href concat "?" concat pageNumber.toString
+          val url = s"${WebCrawlerProperties.getURL}${bean.href}?${pageNumber.toString}"
           WebCrawlerParsingUtils.parseArchivesMailsPage(WebCrawlerUtils.readDataFromURL(url), bean) ::: go (pageNumber -1)
         }
       }

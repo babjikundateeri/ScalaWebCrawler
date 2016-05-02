@@ -22,11 +22,10 @@ class MailArchivesDataBeanWorker(mailArchiveDataBean: MailArchiveDataTransferObj
   }
 
   def processMailArchiveDataBean(mailArchiveDataBean: MailArchiveDataTransferObject): Boolean = {
-    val url = WebCrawlerProperties.getURL concat mailArchiveDataBean.monthlyDataBean.id concat
-      WebCrawlerProperties.MBOX concat  "/ajax/" concat mailArchiveDataBean.href
+    val url = s"${WebCrawlerProperties.getURL}${mailArchiveDataBean.monthlyDataBean.id}${WebCrawlerProperties.MBOX}/ajax/${mailArchiveDataBean.href}"
 
     val baseDir = WebCrawlerFileUtils.getBaseDir(mailArchiveDataBean.monthlyDataBean)
-    val fileName = baseDir concat "/" concat mailArchiveDataBean.date concat WebCrawlerProperties.FILE_EXT
+    val fileName = s"$baseDir/${mailArchiveDataBean.date}${WebCrawlerProperties.FILE_EXT}"
     if (!WebCrawlerFileUtils.isFileExists(fileName)) {
       logger.debug("Writing data to " +fileName)
       WebCrawlerFileUtils.storeFile(fileName, WebCrawlerUtils.readDataFromURL(url))

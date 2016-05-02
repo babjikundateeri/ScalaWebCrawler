@@ -26,19 +26,19 @@ object WebCrawler {
     val urlcontent = WebCrawlerUtils.readDataFromURL(WebCrawlerProperties.getURL)
     val listMonthlyDataBean = WebCrawlerParsingUtils.parseArchivesLinksPage(urlcontent)
 
-    logger.info("Got " + listMonthlyDataBean.length + " records to process")
+    logger.info(s"Got ${listMonthlyDataBean.length} records to process")
     val mailArchiveDataBeans: List[MailArchiveDataTransferObject] = MonthlyDataBeanService.doService(listMonthlyDataBean)
 
-    logger.info("No of mails to be downloaded " + mailArchiveDataBeans.length )
+    logger.info(s"No of mails to be downloaded ${mailArchiveDataBeans.length}" )
     MailArchiveDataBeanService.doService(mailArchiveDataBeans)
   }
 
   def parseArguments(args: Array[String]): Unit = {
     if(args.length > 0) {
-      logger.debug("changing year from  " + WebCrawlerProperties.getYear + " to " + args(0))
+      logger.debug(s"changing year from  ${WebCrawlerProperties.getYear} to ${args(0)}")
       WebCrawlerProperties.setYear(args(0))
     } else {
-      logger.debug("Running for the Year " + WebCrawlerProperties.getYear)
+      logger.debug(s"Running for the Year ${WebCrawlerProperties.getYear}")
     }
   }
 }

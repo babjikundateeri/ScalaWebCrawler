@@ -18,9 +18,7 @@ object WebCrawlerFileUtils {
     writer.close()
   }
 
-  def getBaseDir(bean: MonthlyDataTransferObject) : String = WebCrawlerProperties.getOutDir concat "/" concat
-    WebCrawlerProperties.getArchivesFolder concat WebCrawlerProperties.getYear concat "/" concat
-    bean.id concat WebCrawlerProperties.MBOX
+  def getBaseDir(bean: MonthlyDataTransferObject) : String = s"${WebCrawlerProperties.getOutDir}/${WebCrawlerProperties.getArchivesFolder}${WebCrawlerProperties.getYear}/${bean.id}${WebCrawlerProperties.MBOX}"
 
   def getNoOfFileInDir(dir: String): Int =  if (isFileExists(dir)) new File(dir).listFiles().length else 0
 
