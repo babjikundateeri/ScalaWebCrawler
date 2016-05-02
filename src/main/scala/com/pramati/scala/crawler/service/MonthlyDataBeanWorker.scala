@@ -3,7 +3,7 @@ package com.pramati.scala.crawler.service
 import java.util.concurrent.Callable
 
 import com.pramati.scala.crawler.dtos.{MailArchiveDataBean, MonthlyDataBean}
-import com.pramati.scala.crawler.utils.{URLReadingUtility, WebCrawlerFileUtils, WebCrawlerParser, WebCrawlerProperties}
+import com.pramati.scala.crawler.utils._
 import org.slf4j.LoggerFactory
 
 /**
@@ -24,7 +24,7 @@ class MonthlyDataBeanWorker(monthlyDataBean: MonthlyDataBean) extends Callable[L
 
   }
 
-  def processMontlyDataBean(bean: MonthlyDataBean): List[MailArchiveDataBean] = {
+  private def processMontlyDataBean(bean: MonthlyDataBean): List[MailArchiveDataBean] = {
     val outDir = WebCrawlerFileUtils.getBaseDir(bean)
     logger.debug("Out Dir " + outDir)
     if(!WebCrawlerFileUtils.isFileExists(outDir)) {
@@ -40,11 +40,13 @@ class MonthlyDataBeanWorker(monthlyDataBean: MonthlyDataBean) extends Callable[L
     } else {
       val noOfPages: Int = bean.msgCount / WebCrawlerProperties.getNoOfMailsPerPage + 1
       logger.info(bean.href + "No of pages to read " + noOfPages)
+
+
       def go (pageNumber: Int) : List[MailArchiveDataBean] = {
         if(pageNumber < 0) List.empty
         else {
           val url = WebCrawlerProperties.getURL concat bean.href concat "?" concat pageNumber.toString
-          WebCrawlerParser.parseArchivesMailsPage(URLReadingUtility.read(url), bean) ::: go (pageNumber -1)
+          WebCrawlerParsingUtils.parseArchivesMailsPage(WebCrawlerUtils.readDataFromURL(url), bean) ::: go (pageNumber -1)
         }
       }
       go(noOfPages-1)

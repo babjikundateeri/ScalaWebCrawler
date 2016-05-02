@@ -2,7 +2,7 @@ package com.pramati.scala.crawler
 
 import com.pramati.scala.crawler.dtos.MailArchiveDataBean
 import com.pramati.scala.crawler.service.{MailArchiveDataBeanService, MonthlyDataBeanService}
-import com.pramati.scala.crawler.utils.{URLReadingUtility, WebCrawlerParser, WebCrawlerProperties}
+import com.pramati.scala.crawler.utils.{WebCrawlerParsingUtils, WebCrawlerProperties, WebCrawlerUtils}
 import org.slf4j.LoggerFactory
 
 /**
@@ -23,8 +23,8 @@ object WebCrawler {
 
 
   def startCrawler = {
-    val urlcontent = URLReadingUtility.read(WebCrawlerProperties.getURL)
-    val listMonthlyDataBean = WebCrawlerParser.parseArchivesLinksPage(urlcontent)
+    val urlcontent = WebCrawlerUtils.readDataFromURL(WebCrawlerProperties.getURL)
+    val listMonthlyDataBean = WebCrawlerParsingUtils.parseArchivesLinksPage(urlcontent)
 
     logger.info("Got " + listMonthlyDataBean.length + " records to process")
     val mailArchiveDataBeans: List[MailArchiveDataBean] = MonthlyDataBeanService.doService(listMonthlyDataBean)

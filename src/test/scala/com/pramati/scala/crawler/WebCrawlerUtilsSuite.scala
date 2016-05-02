@@ -3,7 +3,7 @@ package com.pramati.scala.crawler
 import java.io.File
 import java.net.MalformedURLException
 
-import com.pramati.scala.crawler.utils.{URLReadingUtility, WebCrawlerFileUtils}
+import com.pramati.scala.crawler.utils.{WebCrawlerUtils, WebCrawlerFileUtils}
 import org.scalatest.FunSuite
 
 
@@ -12,7 +12,7 @@ import org.scalatest.FunSuite
   */
 class WebCrawlerUtilsSuite extends FunSuite{
     test ("Testing Url connection ") {
-      val content = URLReadingUtility.read("http://mail-archives.apache.org/mod_mbox/")
+      val content = WebCrawlerUtils.readDataFromURL("http://mail-archives.apache.org/mod_mbox/")
       if (content == null) {
         fail()
       }
@@ -21,7 +21,7 @@ class WebCrawlerUtilsSuite extends FunSuite{
 
   test ("Testing with Malformed Url") {
     intercept[MalformedURLException] {
-      val content = URLReadingUtility.read("www.google.com")
+      val content = WebCrawlerUtils.readDataFromURL("www.google.com")
     }
   }
 

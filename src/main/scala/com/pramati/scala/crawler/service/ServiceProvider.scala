@@ -33,7 +33,7 @@ object MonthlyDataBeanService extends ServiceProvider{
     }
     val listOfFututres = go(input)
     pool.shutdown()
-    WebCrawlerCollectionUtility.reArrangeCollection(listOfFututres)
+    WebCrawlerUtils.reArrangeCollection(listOfFututres)
   }
 }
 

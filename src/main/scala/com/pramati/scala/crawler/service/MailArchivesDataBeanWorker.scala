@@ -3,7 +3,7 @@ package com.pramati.scala.crawler.service
 import java.util.concurrent.Callable
 
 import com.pramati.scala.crawler.dtos.MailArchiveDataBean
-import com.pramati.scala.crawler.utils.{URLReadingUtility, WebCrawlerFileUtils, WebCrawlerProperties}
+import com.pramati.scala.crawler.utils.{WebCrawlerFileUtils, WebCrawlerProperties, WebCrawlerUtils}
 import org.slf4j.LoggerFactory
 
 /**
@@ -29,7 +29,7 @@ class MailArchivesDataBeanWorker(mailArchiveDataBean: MailArchiveDataBean) exten
     val fileName = baseDir concat "/" concat mailArchiveDataBean.date concat WebCrawlerProperties.FILE_EXT
     if (!WebCrawlerFileUtils.isFileExists(fileName)) {
       logger.debug("Writing data to " +fileName)
-      WebCrawlerFileUtils.storeFile(fileName, URLReadingUtility.read(url))
+      WebCrawlerFileUtils.storeFile(fileName, WebCrawlerUtils.readDataFromURL(url))
       true
     } else {
       false
