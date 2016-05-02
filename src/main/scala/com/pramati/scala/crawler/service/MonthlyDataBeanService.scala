@@ -12,11 +12,7 @@ import scala.annotation.tailrec
   * Created by babjik on 26/4/16.
   */
 
-trait ServiceProvider {
-
-}
-
-object MonthlyDataBeanService extends ServiceProvider{
+object MonthlyDataBeanService {
   val logger = LoggerFactory.getLogger(this.getClass)
 
   def doService (input: List[MonthlyDataBean]): List[MailArchiveDataBean] = {
@@ -34,25 +30,5 @@ object MonthlyDataBeanService extends ServiceProvider{
     val listOfFututres = go(input)
     pool.shutdown()
     WebCrawlerUtils.reArrangeCollection(listOfFututres)
-  }
-}
-
-
-object MailArchiveDataBeanService extends ServiceProvider{
-  val logger = LoggerFactory.getLogger(this.getClass)
-
-  def doService(input:List[MailArchiveDataBean]): Unit = {
-    val pool: ExecutorService = Executors.newFixedThreadPool(WebCrawlerProperties.getFileWriterConcurrency)
-    @tailrec
-    def go(input:List[MailArchiveDataBean]): Unit = input match {
-      case Nil => // just returning
-      case _ =>
-        val worker = new MailArchivesDataBeanWorker(input.head)
-        pool.submit(worker)
-        go(input.tail)
-    }
-
-    go(input)
-    pool.shutdown()
   }
 }

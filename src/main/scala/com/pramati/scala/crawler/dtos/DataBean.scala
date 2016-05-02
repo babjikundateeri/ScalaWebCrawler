@@ -3,9 +3,7 @@ package com.pramati.scala.crawler.dtos
 /**
   * Created by babjik on 26/4/16.
   */
-trait DataBean {
-
-}
+ sealed trait DataBean extends Product with Serializable
 
 case class MonthlyDataBean (id: String, href: String, msgCount: Int) extends DataBean {
   override def toString = "[DataBean @MonthlyDataBean (id = " + id + ", href = " + href + ", msgCount = " + msgCount + ")]"
