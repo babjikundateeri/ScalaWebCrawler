@@ -3,7 +3,7 @@ package com.pramati.scala.crawler.utils
 import java.io.{File, PrintWriter}
 import java.util.concurrent.Future
 
-import com.pramati.scala.crawler.dtos.{MailArchiveDataBean, MonthlyDataBean}
+import com.pramati.scala.crawler.dtos.{MailArchiveDataTransferObject, MonthlyDataTransferObject}
 import org.slf4j.LoggerFactory
 
 import scala.xml.{Node, NodeSeq}
@@ -15,7 +15,7 @@ import scala.xml.{Node, NodeSeq}
 object WebCrawlerUtils {
   def readDataFromURL(url: String): String = io.Source.fromURL(url).mkString
 
-  def reArrangeCollection(input: List[Future[List[MailArchiveDataBean]]]): List[MailArchiveDataBean] = {
+  def reArrangeCollection(input: List[Future[List[MailArchiveDataTransferObject]]]): List[MailArchiveDataTransferObject] = {
     input match {
       case Nil => List.empty
       case _ =>

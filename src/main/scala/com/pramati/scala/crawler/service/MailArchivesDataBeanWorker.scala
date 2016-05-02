@@ -2,14 +2,14 @@ package com.pramati.scala.crawler.service
 
 import java.util.concurrent.Callable
 
-import com.pramati.scala.crawler.dtos.MailArchiveDataBean
+import com.pramati.scala.crawler.dtos.MailArchiveDataTransferObject
 import com.pramati.scala.crawler.utils.{WebCrawlerFileUtils, WebCrawlerProperties, WebCrawlerUtils}
 import org.slf4j.LoggerFactory
 
 /**
   * Created by babjik on 27/4/16.
   */
-class MailArchivesDataBeanWorker(mailArchiveDataBean: MailArchiveDataBean) extends Callable[Boolean]{
+class MailArchivesDataBeanWorker(mailArchiveDataBean: MailArchiveDataTransferObject) extends Callable[Boolean]{
   val logger = LoggerFactory.getLogger(this.getClass)
 
   override def call(): Boolean = {
@@ -21,7 +21,7 @@ class MailArchivesDataBeanWorker(mailArchiveDataBean: MailArchiveDataBean) exten
     }
   }
 
-  def processMailArchiveDataBean(mailArchiveDataBean: MailArchiveDataBean): Boolean = {
+  def processMailArchiveDataBean(mailArchiveDataBean: MailArchiveDataTransferObject): Boolean = {
     val url = WebCrawlerProperties.getURL concat mailArchiveDataBean.monthlyDataBean.id concat
       WebCrawlerProperties.MBOX concat  "/ajax/" concat mailArchiveDataBean.href
 

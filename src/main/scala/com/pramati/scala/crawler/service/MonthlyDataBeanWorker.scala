@@ -2,17 +2,17 @@ package com.pramati.scala.crawler.service
 
 import java.util.concurrent.Callable
 
-import com.pramati.scala.crawler.dtos.{MailArchiveDataBean, MonthlyDataBean}
+import com.pramati.scala.crawler.dtos.{MailArchiveDataTransferObject, MonthlyDataTransferObject}
 import com.pramati.scala.crawler.utils._
 import org.slf4j.LoggerFactory
 
 /**
   * Created by babjik on 27/4/16.
   */
-class MonthlyDataBeanWorker(monthlyDataBean: MonthlyDataBean) extends Callable[List[MailArchiveDataBean]]{
+class MonthlyDataBeanWorker(monthlyDataBean: MonthlyDataTransferObject) extends Callable[List[MailArchiveDataTransferObject]]{
   val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def call(): List[MailArchiveDataBean] = {
+  override def call(): List[MailArchiveDataTransferObject] = {
     try {
       processMontlyDataBean(monthlyDataBean)
     } catch {
@@ -24,7 +24,7 @@ class MonthlyDataBeanWorker(monthlyDataBean: MonthlyDataBean) extends Callable[L
 
   }
 
-  private def processMontlyDataBean(bean: MonthlyDataBean): List[MailArchiveDataBean] = {
+  private def processMontlyDataBean(bean: MonthlyDataTransferObject): List[MailArchiveDataTransferObject] = {
     val outDir = WebCrawlerFileUtils.getBaseDir(bean)
     logger.debug("Out Dir " + outDir)
     if(!WebCrawlerFileUtils.isFileExists(outDir)) {
@@ -42,7 +42,7 @@ class MonthlyDataBeanWorker(monthlyDataBean: MonthlyDataBean) extends Callable[L
       logger.info(bean.href + "No of pages to read " + noOfPages)
 
 
-      def go (pageNumber: Int) : List[MailArchiveDataBean] = {
+      def go (pageNumber: Int) : List[MailArchiveDataTransferObject] = {
         if(pageNumber < 0) List.empty
         else {
           val url = WebCrawlerProperties.getURL concat bean.href concat "?" concat pageNumber.toString

@@ -1,6 +1,6 @@
 package com.pramati.scala.crawler
 
-import com.pramati.scala.crawler.dtos.MailArchiveDataBean
+import com.pramati.scala.crawler.dtos.MailArchiveDataTransferObject
 import com.pramati.scala.crawler.service.{MailArchiveDataBeanService, MonthlyDataBeanService}
 import com.pramati.scala.crawler.utils.{WebCrawlerParsingUtils, WebCrawlerProperties, WebCrawlerUtils}
 import org.slf4j.LoggerFactory
@@ -27,7 +27,7 @@ object WebCrawler {
     val listMonthlyDataBean = WebCrawlerParsingUtils.parseArchivesLinksPage(urlcontent)
 
     logger.info("Got " + listMonthlyDataBean.length + " records to process")
-    val mailArchiveDataBeans: List[MailArchiveDataBean] = MonthlyDataBeanService.doService(listMonthlyDataBean)
+    val mailArchiveDataBeans: List[MailArchiveDataTransferObject] = MonthlyDataBeanService.doService(listMonthlyDataBean)
 
     logger.info("No of mails to be downloaded " + mailArchiveDataBeans.length )
     MailArchiveDataBeanService.doService(mailArchiveDataBeans)

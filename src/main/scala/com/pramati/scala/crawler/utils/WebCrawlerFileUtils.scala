@@ -2,7 +2,7 @@ package com.pramati.scala.crawler.utils
 
 import java.io.{File, PrintWriter}
 
-import com.pramati.scala.crawler.dtos.MonthlyDataBean
+import com.pramati.scala.crawler.dtos.MonthlyDataTransferObject
 import org.slf4j.LoggerFactory
 
 /**
@@ -18,7 +18,7 @@ object WebCrawlerFileUtils {
     writer.close()
   }
 
-  def getBaseDir(bean: MonthlyDataBean) : String = WebCrawlerProperties.getOutDir concat "/" concat
+  def getBaseDir(bean: MonthlyDataTransferObject) : String = WebCrawlerProperties.getOutDir concat "/" concat
     WebCrawlerProperties.getArchivesFolder concat WebCrawlerProperties.getYear concat "/" concat
     bean.id concat WebCrawlerProperties.MBOX
 
