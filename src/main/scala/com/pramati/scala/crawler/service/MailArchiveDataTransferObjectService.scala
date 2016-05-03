@@ -11,21 +11,16 @@ import scala.annotation.tailrec
 /**
   * Created by babjik on 2/5/16.
   */
-object MailArchiveDataBeanService {
+object MailArchiveDataTransferObjectService {
   val logger = LoggerFactory.getLogger(this.getClass)
 
-  def doService(input:List[MailArchiveDataTransferObject]): Unit = {
+  def doService(input: List[MailArchiveDataTransferObject]): Unit = {
     val pool: ExecutorService = Executors.newFixedThreadPool(WebCrawlerProperties.getFileWriterConcurrency)
-    @tailrec
-    def go(input:List[MailArchiveDataTransferObject]): Unit = input match {
-      case Nil => // just returning
-      case _ =>
-        val worker = new MailArchivesDataBeanWorker(input.head)
-        pool.submit(worker)
-        go(input.tail)
-    }
-
-    go(input)
+    input.map(processMailArchiveDataTransferObject(pool,_))
     pool.shutdown()
+  }
+
+  private def processMailArchiveDataTransferObject(pool: ExecutorService, mailArchiveDataTransferObject: MailArchiveDataTransferObject): Unit = {
+    pool.submit(new MailArchiveDataTransferObjectWorker(mailArchiveDataTransferObject))
   }
 }

@@ -18,15 +18,7 @@ object WebCrawlerParsingUtils {
 
     logger.debug("No of matches found  " + nodeSeqOfTRs.length)
 
-
-    trNodeToMonthlyDataBeanList(nodeSeqOfTRs)
-  }
-
-  private def trNodeToMonthlyDataBeanList (nodeSeq: NodeSeq) : List[MonthlyDataTransferObject] = nodeSeq match {
-    case NodeSeq.Empty =>
-      Nil
-    case _ =>
-      trNodeToMonthlyDataBeanList(nodeSeq.tail) :+ getMonthlyDataBean(nodeSeq.head)
+    nodeSeqOfTRs.map(getMonthlyDataBean).toList
   }
 
   private def getMonthlyDataBean(node: Node) : MonthlyDataTransferObject = {
@@ -40,14 +32,7 @@ object WebCrawlerParsingUtils {
   def parseArchivesMailsPage(urlContent : String, bean: MonthlyDataTransferObject): List[MailArchiveDataTransferObject] = {
     val nodeSeq: NodeSeq = (scala.xml.XML.loadString(urlContent) \\ "html" \ "body" \ "table" filter { _ \\ "@id" exists (_.text == "msglist") }) \ "tbody" \ "tr"
 
-    trNodeToMailArchiveDataBean(nodeSeq, bean)
-  }
-
-  private def trNodeToMailArchiveDataBean(nodeSeq: NodeSeq, bean: MonthlyDataTransferObject): List[MailArchiveDataTransferObject] = nodeSeq match {
-    case NodeSeq.Empty =>
-      Nil
-    case _ =>
-      trNodeToMailArchiveDataBean(nodeSeq.tail, bean) :+ getMailArchiveDataBeans(nodeSeq.head, bean)
+    nodeSeq.map(getMailArchiveDataBeans(_, bean)).toList
   }
 
   private def getMailArchiveDataBeans(node: Node, bean: MonthlyDataTransferObject): MailArchiveDataTransferObject = {

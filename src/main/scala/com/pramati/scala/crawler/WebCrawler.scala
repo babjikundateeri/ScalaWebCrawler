@@ -1,7 +1,7 @@
 package com.pramati.scala.crawler
 
 import com.pramati.scala.crawler.dtos.MailArchiveDataTransferObject
-import com.pramati.scala.crawler.service.{MailArchiveDataBeanService, MonthlyDataBeanService}
+import com.pramati.scala.crawler.service.{MailArchiveDataTransferObjectService, MonthlyDataTransferObjectService}
 import com.pramati.scala.crawler.utils.{WebCrawlerParsingUtils, WebCrawlerProperties, WebCrawlerUtils}
 import org.slf4j.LoggerFactory
 
@@ -27,10 +27,10 @@ object WebCrawler {
     val listMonthlyDataBean = WebCrawlerParsingUtils.parseArchivesLinksPage(urlcontent)
 
     logger.info(s"Got ${listMonthlyDataBean.length} records to process")
-    val mailArchiveDataBeans: List[MailArchiveDataTransferObject] = MonthlyDataBeanService.doService(listMonthlyDataBean)
+    val mailArchiveDataBeans: List[MailArchiveDataTransferObject] = MonthlyDataTransferObjectService.doService(listMonthlyDataBean)
 
     logger.info(s"No of mails to be verified ${mailArchiveDataBeans.length}" )
-    MailArchiveDataBeanService.doService(mailArchiveDataBeans)
+    MailArchiveDataTransferObjectService.doService(mailArchiveDataBeans)
   }
 
   def parseArguments(args: Array[String]): Unit = {

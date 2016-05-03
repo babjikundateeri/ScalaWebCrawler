@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 /**
   * Created by babjik on 27/4/16.
   */
-class MonthlyDataBeanWorker(monthlyDataBean: MonthlyDataTransferObject) extends Callable[List[MailArchiveDataTransferObject]]{
+class MonthlyDataTransferObjectWorker(monthlyDataBean: MonthlyDataTransferObject) extends Callable[List[MailArchiveDataTransferObject]]{
   val logger = LoggerFactory.getLogger(this.getClass)
 
   override def call(): List[MailArchiveDataTransferObject] = {

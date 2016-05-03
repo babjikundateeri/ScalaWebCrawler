@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 /**
   * Created by babjik on 27/4/16.
   */
-class MailArchivesDataBeanWorker(mailArchiveDataBean: MailArchiveDataTransferObject) extends Callable[Boolean]{
+class MailArchiveDataTransferObjectWorker(mailArchiveDataBean: MailArchiveDataTransferObject) extends Callable[Boolean]{
   val logger = LoggerFactory.getLogger(this.getClass)
 
   override def call(): Boolean = {
