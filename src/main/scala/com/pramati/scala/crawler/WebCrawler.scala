@@ -29,7 +29,7 @@ object WebCrawler {
     logger.info(s"Got ${listMonthlyDataBean.length} records to process")
     val mailArchiveDataBeans: List[MailArchiveDataTransferObject] = MonthlyDataBeanService.doService(listMonthlyDataBean)
 
-    logger.info(s"No of mails to be downloaded ${mailArchiveDataBeans.length}" )
+    logger.info(s"No of mails to be verified ${mailArchiveDataBeans.length}" )
     MailArchiveDataBeanService.doService(mailArchiveDataBeans)
   }
 
